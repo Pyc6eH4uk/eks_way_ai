@@ -2,37 +2,45 @@
 #include <vector>
 #include <limits>
 #include "source/simplex_task_t.h"
+#include "source/linear_cut_task_t.h"
 
 int main() {
-//    row_t costs = { 4, 5, 4 };
-//    std::vector<simplex_method_unequality_t> unequalities;
-//    unequalities.emplace_back(row_t {2, 3, 6}, 240.0, simplex_method_unequality_t::type_t::LESS);
-//    unequalities.emplace_back(row_t {4, 2, 4}, 200.0, simplex_method_unequality_t::type_t::LESS);
-//    unequalities.emplace_back(row_t {4, 6, 8}, 160.0, simplex_method_unequality_t::type_t::LESS);
+    std::vector<linear_cut_task_t::package_t> packages;
+    std::vector<linear_cut_task_t::package_t> patterns;
 
-    row_t costs = { 2, 1, -2};
-    std::vector<simplex_method_unequality_t> unequalities;
-    unequalities.emplace_back(row_t {1, 1, -1}, 8.0, simplex_method_unequality_t::type_t::GREATER);
-    unequalities.emplace_back(row_t {1, -1, 2}, 2.0, simplex_method_unequality_t::type_t::GREATER);
-    unequalities.emplace_back(row_t {-2, -8, 3}, 1.0, simplex_method_unequality_t::type_t::GREATER);
-//    row_t costs = { 2, 3};
-//    std::vector<simplex_method_unequality_t> unequalities;
-//    unequalities.emplace_back(row_t {-2, 6}, 40.0, simplex_method_unequality_t::type_t::EQUAL);
-//    unequalities.emplace_back(row_t {3, 2}, 28.0, simplex_method_unequality_t::type_t::EQUAL);
-//    unequalities.emplace_back(row_t {2, -1}, 14.0, simplex_method_unequality_t::type_t::EQUAL);
+    /*
+    patterns.push_back({2, 50, 65});
+    patterns.push_back({3, 50, 65});
 
-//    row_t costs = { -2, 3, -6, -1};
-//    std::vector<simplex_method_unequality_t> unequalities;
-//    unequalities.emplace_back(row_t {2, 1, -2, 1}, 24.0, simplex_method_unequality_t::type_t::EQUAL);
-//    unequalities.emplace_back(row_t {-1, -2, -4, 0}, 22.0, simplex_method_unequality_t::type_t::EQUAL);
-//    unequalities.emplace_back(row_t {1, -1, 2, 0}, 10.0, simplex_method_unequality_t::type_t::EQUAL);
-    auto task = new simplex_task_t(costs, unequalities);
+    packages.push_back({6, 0, 19});
+    packages.push_back({7, 0, 37});
+    */
+
+    packages.push_back({56, 0, 19});
+    packages.push_back({59, 0, 19});
+    packages.push_back({63, 0, 37});
+
+    patterns.push_back({6, 20, 38});
+    patterns.push_back({9, 40, 47});
+    patterns.push_back({12, 30, 32});
+    patterns.push_back({13, 50, 52});
+    patterns.push_back({21, 30, 46});
+    patterns.push_back({27, 50, 65});
+
+    auto task = linear_cut_task_t::make_standart_simplex_task(packages, patterns);
     auto simplex_method = new simplex_method_t(task);
 
+    task->print_cost();
+    task->print_equality();
+
+    real_t value;
     row_t solution;
-    if (simplex_method->get_solution(solution)) {
+    std::vector<int> basis;
+    if (simplex_method->get_solution(solution, basis, value)) {
+        std::cout << "value: " << - value << std::endl;
+        std::cout << "solution:" << std::endl;
         for (auto x : solution) {
-            std::cout << x << " ";
+            std::cout << std::setw(4) << x << " ";
         }
         std::cout << std::endl;
     } else {

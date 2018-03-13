@@ -6,6 +6,7 @@
 #define RUSLAN_DEBIL_REFACTOR_DEFAULT_SIMPLEX_METHOD_T_H
 
 #include <iostream>
+#include <iomanip>
 #include "abstract_simplex_task_t.h"
 #include "simplex_method_unequality_t.h"
 #include "simplex_method_t.h"
@@ -17,11 +18,12 @@ struct simplex_task_t : public abstract_simplex_task_t {
     simplex_task_t(const row_t &costs,
                    const std::vector<simplex_method_unequality_t> &unequalities) {
         cost_vector = costs;
-        for (auto unequality : unequalities) {
-            equalities.push_back(unequality.to_canonical());
+        equalities = simplex_method_unequality_t::to_canonical(unequalities);
+        for (int i = 0; i < equalities.size(); i++) {
+            cost_vector.push_back(0);
         }
         for (int i = 0; i < equalities.size(); i++) {
-            cost_vector.push_back(0.0);
+            cost_vector.push_back(-100.0);
             std::vector<real_t> extra_row(equalities.size(), 0);
             extra_row[i] = 1.0;
             equalities[i].coefficients.insert(equalities[i].coefficients.end(), extra_row.begin(), extra_row.end());
@@ -58,18 +60,23 @@ struct simplex_task_t : public abstract_simplex_task_t {
 
     void print_cost() const override {
         int length = (int) cost_vector.size();
+        std::cout << "cost:" << std::endl;
         for (int i = 0; i < length; i++) {
-            std::cout << cost_vector[i] << " ";
+            std::cout << std::setw(4) << cost_vector[i] << " ";
         }
         std::cout << std::endl;
     }
 
     void print_equality() const override {
         int length = (int) equalities.size();
+        std::cout << "equalities:" << std::endl;
         for (int i = 0; i < length; i++) {
-            std::cout << equalities[i].right_side_value << " ";
+            for (int j = 0; j < equalities[i].coefficients.size(); j++) {
+                std::cout << std::setw(4) << equalities[i].coefficients[j] << " ";
+            }
+            std::cout << " = " << equalities[i].right_side_value << " ";
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
     }
 };
 

@@ -59,3 +59,81 @@ int linear_cut_task_t::original_variable_size() const {
 int linear_cut_task_t::basis_size() const {
     return 0;
 }
+
+std::vector<std::vector<int>>
+linear_cut_task_t::get_all_cuts(int length, const std::vector<linear_cut_task_t::package_t> &patterns) {
+    linear_cut_generator_t generator(length, patterns);
+    return generator.result();
+}
+
+simplex_task_t*
+linear_cut_task_t::make_standart_simplex_task(const std::vector<linear_cut_task_t::package_t> &packages,
+                                              const std::vector<linear_cut_task_t::package_t> &patterns) {
+    std::vector<simplex_method_unequality_t> unequalities;
+    std::vector<row_t> columns;
+    for (int i = 0; i < packages.size(); i++) {
+        auto cuts = linear_cut_task_t::get_all_cuts(packages[i].length, patterns);
+        for (auto cut : cuts) {
+            row_t column;
+            for (auto j : cut)
+                column.push_back(j);
+            for (int j = 0; j < packages.size(); j++)
+                column.push_back(i == j);
+            columns.push_back(column);
+        }
+    }
+    std::vector<row_t> rows(patterns.size() + packages.size());
+    for (int i = 0; i < rows.size(); i++) {
+        rows[i] = row_t(columns.size());
+    }
+    for (int i = 0; i < columns.size(); i++) {
+        for (int j = 0; j < rows.size(); j++) {
+            rows[j][i] = columns[i][j];
+        }
+    }
+    for (int i = 0; i < patterns.size(); i++) {
+        unequalities.emplace_back(rows[i], patterns[i].low_size, simplex_method_unequality_t::type_t::GREATER);
+        unequalities.emplace_back(rows[i], patterns[i].high_size, simplex_method_unequality_t::type_t::LESS);
+    }
+    for (int i = (int) patterns.size(), j = 0; i < rows.size(); i++, j++) {
+        unequalities.emplace_back(rows[i], packages[j].low_size, simplex_method_unequality_t::type_t::GREATER);
+        unequalities.emplace_back(rows[i], packages[j].high_size, simplex_method_unequality_t::type_t::LESS);
+    }
+    row_t cost;
+    for (int i = 0; i < columns.size(); i++) {
+        cost.push_back(-1);
+    }
+    return new simplex_task_t(cost, unequalities);
+}
+
+linear_cut_generator_t::linear_cut_generator_t(int length, const std::vector<linear_cut_task_t::package_t> &patterns) {
+    _length = length;
+    _patterns = patterns;
+
+    f(length, {});
+}
+
+void linear_cut_generator_t::f(int length, std::vector<int> current) {
+    if (length >= 0 && !current.empty()) {
+        _result.push_back(current);
+    }
+    if (length <= 0)
+        return;
+
+    for (int i = 0; i < _patterns.size(); i++) {
+        current.push_back(i);
+        f(length - _patterns[i].length, current);
+        current.pop_back();
+    }
+}
+
+std::vector<std::vector<int>> linear_cut_generator_t::result() {
+    std::vector<std::vector<int>> res;
+    for (auto cut : _result) {
+        std::vector<int> cut_count(_patterns.size(), 0);
+        for (int i : cut)
+            cut_count[i]++;
+        res.push_back(cut_count);
+    }
+    return res;
+}

@@ -25,7 +25,30 @@ struct simplex_method_unequality_t {
         this->type = type;
     }
 
-    simplex_method_equality_t to_canonical();
+    static std::vector<simplex_method_equality_t> to_canonical(const std::vector<simplex_method_unequality_t> &unequalities) {
+        std::vector<simplex_method_equality_t> result;
+        for (int i = 0; i < unequalities.size(); i++) {
+            auto unequality = unequalities[i];
+            row_t row = unequality.coefficients;
+            for (int j = 0; j < unequalities.size(); j++) {
+                if (j == i) {
+                    if (unequality.type == simplex_method_unequality_t::type_t::LESS) {
+                        row.push_back(1);
+                    }
+                    if (unequality.type == simplex_method_unequality_t::type_t::GREATER) {
+                        row.push_back(-1);
+                    }
+                    if (unequality.type == simplex_method_unequality_t::type_t::EQUAL) {
+                        row.push_back(0);
+                    }
+                } else {
+                    row.push_back(0);
+                }
+            }
+            result.emplace_back(row, unequality.right_side_value);
+        }
+        return result;
+    }
 };
 
 

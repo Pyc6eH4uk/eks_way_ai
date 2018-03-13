@@ -64,7 +64,7 @@ int simplex_method_t::find_worth_row(int best_column) {
     int minimal_index = -1;
     for (int i = 0; i < m_task->basis_size(); i++) {
         if (column[i] <= 0) continue;
-        real_t value = m_task->get_equality(i) / column[i];
+        real_t value = m_extra_inv_table[i][0] / column[i];
         if (minimal_index == -1 || value < minimal_value) {
             minimal_value = value;
             minimal_index = i;
@@ -107,7 +107,7 @@ bool simplex_method_t::is_solution_not_bounded() {
     return find_worth_row(index) == -1;
 }
 
-bool simplex_method_t::get_solution(row_t &x) {
+bool simplex_method_t::get_solution(row_t &x, std::vector<int> &basis, real_t &value) {
     while (!is_solution_optimal()) {
         if (is_solution_not_bounded())
             return false;
@@ -115,21 +115,28 @@ bool simplex_method_t::get_solution(row_t &x) {
         auto j = find_best_column();
         auto i = find_worth_row(j);
         exchange_variables(j, i);
-        std::cout << "<-----------" << std::endl;
-        for (int i = 0; i < m_extra_inv_table.size(); i++) {
-            for (int j = 0; j < m_basis.size(); j++) {
-                std::cout << m_extra_inv_table[i][j] << " ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << "----------->" << std::endl;
-        m_task->print_cost();
     }
+
+    if (is_solution_not_bounded())
+        return false;
 
     x.clear();
     x.resize(m_task->variable_size(), 0);
+    basis.clear();
+    value = 0.0;
     for (int i = 0; i < m_basis.size(); i++) {
         x[m_basis[i]] = m_extra_inv_table[i][0];
+        basis.push_back(m_basis[i]);
+        value += x[m_basis[i]] * m_task->get_cost(m_basis[i]);
     }
     return true;
+}
+
+void simplex_method_t::print_inv_table() {
+    for (int i = 0; i < m_extra_inv_table.size(); i++) {
+        for (int j = 0; j < m_extra_inv_table[i].size(); j++) {
+            std::cout << m_extra_inv_table[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
 }

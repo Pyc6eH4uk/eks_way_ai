@@ -7,6 +7,9 @@
 
 
 #include "abstract_simplex_task_t.h"
+#include "simplex_method_unequality_t.h"
+#include "simplex_task_t.h"
+
 
 class linear_cut_task_t : public abstract_simplex_task_t {
 public:
@@ -32,7 +35,23 @@ public:
     int variable_size() const override;
     int original_variable_size() const override;
     int basis_size() const override;
+
+    static std::vector<std::vector<int>> get_all_cuts(int length, const std::vector<package_t> &patterns);
+    static simplex_task_t *make_standart_simplex_task(const std::vector<package_t> &packages,
+                                                                               const std::vector<package_t> &patterns);
 };
 
+class linear_cut_generator_t {
+protected:
+    int _length;
+    std::vector<linear_cut_task_t::package_t> _patterns;
+    std::vector<std::vector<int>> _result;
+
+public:
+    linear_cut_generator_t(int length, const std::vector<linear_cut_task_t::package_t> &patterns);
+
+    void f(int length, std::vector<int> current);
+    std::vector<std::vector<int>> result();
+};
 
 #endif //RUSLAN_DEBIL_REFACTOR_LINEAR_CUT_TASK_T_H

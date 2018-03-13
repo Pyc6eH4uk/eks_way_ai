@@ -31,7 +31,9 @@ public:
     virtual bool is_solution_optimal();
     virtual bool is_solution_not_bounded();
 
-    virtual bool get_solution(row_t &x);
+    virtual bool get_solution(row_t &x, std::vector<int> &basis, real_t &value);
+
+    void print_inv_table();
 };
 
 

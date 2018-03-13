@@ -12,6 +12,11 @@
 struct simplex_method_equality_t {
     row_t coefficients;
     real_t right_side_value;
+
+    simplex_method_equality_t(const row_t &coefficients, real_t right_side_value) {
+        this->coefficients = coefficients;
+        this->right_side_value = right_side_value;
+    }
 };
 
 

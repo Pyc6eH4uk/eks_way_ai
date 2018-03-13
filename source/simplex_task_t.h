@@ -5,6 +5,7 @@
 #ifndef RUSLAN_DEBIL_REFACTOR_DEFAULT_SIMPLEX_METHOD_T_H
 #define RUSLAN_DEBIL_REFACTOR_DEFAULT_SIMPLEX_METHOD_T_H
 
+#include <iostream>
 #include "abstract_simplex_task_t.h"
 #include "simplex_method_unequality_t.h"
 #include "simplex_method_t.h"
@@ -21,7 +22,8 @@ struct simplex_task_t : public abstract_simplex_task_t {
         }
         for (int i = 0; i < equalities.size(); i++) {
             cost_vector.push_back(0.0);
-            std::vector<real_t> extra_row(equalities.size(), 0); extra_row[i] = 1.0;
+            std::vector<real_t> extra_row(equalities.size(), 0);
+            extra_row[i] = 1.0;
             equalities[i].coefficients.insert(equalities[i].coefficients.end(), extra_row.begin(), extra_row.end());
         }
     }
@@ -52,6 +54,22 @@ struct simplex_task_t : public abstract_simplex_task_t {
             column.push_back(equalitie.coefficients[index]);
         }
         return column;
+    }
+
+    void print_cost() const override {
+        int length = (int) cost_vector.size();
+        for (int i = 0; i < length; i++) {
+            std::cout << cost_vector[i] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    void print_equality() const override {
+        int length = (int) equalities.size();
+        for (int i = 0; i < length; i++) {
+            std::cout << equalities[i].right_side_value << " ";
+        }
+        std::cout << std::endl;
     }
 };
 

@@ -17,6 +17,10 @@ struct abstract_simplex_task_t {
     virtual int variable_size() const = 0;
     virtual int original_variable_size() const = 0;
     virtual int basis_size() const = 0;
+
+    virtual void print_cost() const = 0;
+
+    virtual void print_equality() const = 0;
 };
 
 

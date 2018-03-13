@@ -2,6 +2,7 @@
 // Created by pyc6eh4uk on 09.03.18.
 //
 
+#include <iostream>
 #include "simplex_method_t.h"
 
 simplex_method_t::simplex_method_t(abstract_simplex_task_t *task) {
@@ -114,6 +115,15 @@ bool simplex_method_t::get_solution(row_t &x) {
         auto j = find_best_column();
         auto i = find_worth_row(j);
         exchange_variables(j, i);
+        std::cout << "<-----------" << std::endl;
+        for (int i = 0; i < m_extra_inv_table.size(); i++) {
+            for (int j = 0; j < m_basis.size(); j++) {
+                std::cout << m_extra_inv_table[i][j] << " ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << "----------->" << std::endl;
+        m_task->print_cost();
     }
 
     x.clear();

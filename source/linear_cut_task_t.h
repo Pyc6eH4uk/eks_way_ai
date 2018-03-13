@@ -50,7 +50,7 @@ protected:
 public:
     linear_cut_generator_t(int length, const std::vector<linear_cut_task_t::package_t> &patterns);
 
-    void f(int length, std::vector<int> current);
+    void f(int length, int last, std::vector<int> current);
     std::vector<std::vector<int>> result();
 };
 

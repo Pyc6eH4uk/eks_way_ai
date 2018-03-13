@@ -110,19 +110,19 @@ linear_cut_generator_t::linear_cut_generator_t(int length, const std::vector<lin
     _length = length;
     _patterns = patterns;
 
-    f(length, {});
+    f(length, 0, {});
 }
 
-void linear_cut_generator_t::f(int length, std::vector<int> current) {
+void linear_cut_generator_t::f(int length, int last, std::vector<int> current) {
     if (length >= 0 && !current.empty()) {
         _result.push_back(current);
     }
     if (length <= 0)
         return;
 
-    for (int i = 0; i < _patterns.size(); i++) {
+    for (int i = last; i < _patterns.size(); i++) {
         current.push_back(i);
-        f(length - _patterns[i].length, current);
+        f(length - _patterns[i].length, i, current);
         current.pop_back();
     }
 }

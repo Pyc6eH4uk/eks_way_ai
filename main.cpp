@@ -7,7 +7,7 @@
 int main() {
     std::vector<linear_cut_task_t::package_t> packages;
     std::vector<linear_cut_task_t::package_t> patterns;
-
+    int reserved;
     /*
     patterns.push_back({2, 50, 65});
     patterns.push_back({3, 50, 65});
@@ -19,6 +19,7 @@ int main() {
     packages.push_back({56, 0, 19});
     packages.push_back({59, 0, 19});
     packages.push_back({63, 0, 37});
+    reserved = 0;
 
     patterns.push_back({6, 20, 38});
     patterns.push_back({9, 40, 47});
@@ -27,7 +28,7 @@ int main() {
     patterns.push_back({21, 30, 46});
     patterns.push_back({27, 50, 65});
 
-    auto task = linear_cut_task_t::make_standart_simplex_task(packages, patterns);
+    auto task = linear_cut_task_t::make_standart_simplex_task(packages, patterns, reserved);
     auto simplex_method = new simplex_method_t(task);
 
     task->print_cost();

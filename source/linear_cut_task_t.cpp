@@ -61,18 +61,18 @@ int linear_cut_task_t::basis_size() const {
 }
 
 std::vector<std::vector<int>>
-linear_cut_task_t::get_all_cuts(int length, const std::vector<linear_cut_task_t::package_t> &patterns) {
-    linear_cut_generator_t generator(length, patterns);
+linear_cut_task_t::get_all_cuts(int length, const std::vector<linear_cut_task_t::package_t> &patterns, int reserve) {
+    linear_cut_generator_t generator(length, patterns, reserve);
     return generator.result();
 }
 
 simplex_task_t*
 linear_cut_task_t::make_standart_simplex_task(const std::vector<linear_cut_task_t::package_t> &packages,
-                                              const std::vector<linear_cut_task_t::package_t> &patterns) {
+                                              const std::vector<linear_cut_task_t::package_t> &patterns, int reserve) {
     std::vector<simplex_method_unequality_t> unequalities;
     std::vector<row_t> columns;
     for (int i = 0; i < packages.size(); i++) {
-        auto cuts = linear_cut_task_t::get_all_cuts(packages[i].length, patterns);
+        auto cuts = linear_cut_task_t::get_all_cuts(packages[i].length, patterns, reserve);
         for (auto cut : cuts) {
             row_t column;
             for (auto j : cut)
@@ -106,18 +106,19 @@ linear_cut_task_t::make_standart_simplex_task(const std::vector<linear_cut_task_
     return new simplex_task_t(cost, unequalities);
 }
 
-linear_cut_generator_t::linear_cut_generator_t(int length, const std::vector<linear_cut_task_t::package_t> &patterns) {
+linear_cut_generator_t::linear_cut_generator_t(int length, const std::vector<linear_cut_task_t::package_t> &patterns, int reserve) {
     _length = length;
     _patterns = patterns;
+    _reserve = reserve;
 
     f(length, 0, {});
 }
 
 void linear_cut_generator_t::f(int length, int last, std::vector<int> current) {
-    if (length >= 0 && !current.empty()) {
+    if (length >= _reserve && !current.empty()) {
         _result.push_back(current);
     }
-    if (length <= 0)
+    if (length <= _reserve)
         return;
 
     for (int i = last; i < _patterns.size(); i++) {

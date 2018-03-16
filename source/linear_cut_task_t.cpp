@@ -30,17 +30,18 @@ std::vector<int> linear_cut_task_t::find_linear_cut(int index, const row_t &v) {
     int y = length;
     while (ans[y] > 0) {
         result[ans[y] - 1]++;
-        y -= result[ans[y] - 1];
+        auto l = patterns[ans[y] - 1].length;
+        y -= l;
     }
     return result;
 }
 
 double linear_cut_task_t::get_cost(int index) const {
-    return 1;
+    return - 1;
 }
 
 double linear_cut_task_t::get_equality(int index) const {
-    return 0;
+    return patterns[index].low_size;
 }
 
 row_t linear_cut_task_t::get_column(int index) const {
@@ -49,15 +50,15 @@ row_t linear_cut_task_t::get_column(int index) const {
 }
 
 int linear_cut_task_t::variable_size() const {
-    return 0;
+    return (int) patterns.size();
 }
 
 int linear_cut_task_t::original_variable_size() const {
-    return 0;
+    return (int) patterns.size();
 }
 
 int linear_cut_task_t::basis_size() const {
-    return 0;
+    return (int) patterns.size();
 }
 
 std::vector<std::vector<int>>
@@ -104,6 +105,22 @@ linear_cut_task_t::make_standart_simplex_task(const std::vector<linear_cut_task_
         cost.push_back(-1);
     }
     return new simplex_task_t(cost, unequalities);
+}
+
+const std::vector<linear_cut_task_t::package_t> &linear_cut_task_t::get_packages() const {
+    return packages;
+}
+
+const std::vector<linear_cut_task_t::package_t> &linear_cut_task_t::get_patterns() const {
+    return patterns;
+}
+
+void linear_cut_task_t::print_cost() const {
+
+}
+
+void linear_cut_task_t::print_equality() const {
+
 }
 
 linear_cut_generator_t::linear_cut_generator_t(int length, const std::vector<linear_cut_task_t::package_t> &patterns) {

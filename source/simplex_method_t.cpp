@@ -32,6 +32,7 @@ real_t simplex_method_t::find_estimate(int index) {
         value += find_dual_variable(i) * column[i];
     }
     return value - m_task->get_cost(index);
+
 }
 
 int simplex_method_t::find_best_column() {
@@ -77,7 +78,7 @@ void simplex_method_t::exchange_variables(int new_index, int row_index) {
     row_t column = get_multiplied_column(new_index);
     for (int i = 0; i < m_task->basis_size(); i++)
         m_extra_inv_table[i][m_task->basis_size() + 1] = column[i];
-    auto m = m_task->basis_size();
+        auto m = m_task->basis_size();
         for (int i = 0; i < m; i++) {
         for (int j = 0; j <= m; j++) {
             if (i != row_index) {
@@ -107,19 +108,27 @@ bool simplex_method_t::is_solution_not_bounded() {
     return find_worth_row(index) == -1;
 }
 
-bool simplex_method_t::get_solution(row_t &x, std::vector<int> &basis, real_t &value) {
-    while (!is_solution_optimal()) {
-        if (is_solution_not_bounded())
-            return false;
-
+bool simplex_method_t::find_solution(row_t &x, std::vector<int> &basis, real_t &value) {
+    do {
+        print_inv_table();
         auto j = find_best_column();
         auto i = find_worth_row(j);
+        std::cout << j <<  " " << i << std::endl;
+        for (auto k : m_basis) {
+            std::cout << k << " ";
+        }
+        std::cout << std::endl;
         exchange_variables(j, i);
-    }
+    } while (!is_solution_optimal());
 
     if (is_solution_not_bounded())
         return false;
 
+    get_solution(x, basis, value);
+    return true;
+}
+
+void simplex_method_t::get_solution(row_t &x, std::vector<int> &basis, real_t &value) {
     x.clear();
     x.resize(m_task->variable_size(), 0);
     basis.clear();
@@ -129,7 +138,6 @@ bool simplex_method_t::get_solution(row_t &x, std::vector<int> &basis, real_t &v
         basis.push_back(m_basis[i]);
         value += x[m_basis[i]] * m_task->get_cost(m_basis[i]);
     }
-    return true;
 }
 
 void simplex_method_t::print_inv_table() {

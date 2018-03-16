@@ -36,6 +36,13 @@ public:
     int original_variable_size() const override;
     int basis_size() const override;
 
+    void print_cost() const override;
+
+    void print_equality() const override;
+
+    const std::vector<package_t> &get_packages() const;
+    const std::vector<package_t> &get_patterns() const;
+
     static std::vector<std::vector<int>> get_all_cuts(int length, const std::vector<package_t> &patterns);
     static simplex_task_t *make_standart_simplex_task(const std::vector<package_t> &packages,
                                                                                const std::vector<package_t> &patterns);

@@ -37,8 +37,10 @@ std::vector<int> linear_cut_task_t::find_linear_cut(int index, const row_t &v) c
 }
 
 double linear_cut_task_t::get_cost(int index) const {
-    if (index < packages.size() + patterns.size())
+    if (index < packages.size())
         return -1;
+    if (index >= basis_size())
+        return -100;
     return 0;
 }
 

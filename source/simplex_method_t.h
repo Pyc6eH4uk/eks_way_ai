@@ -35,6 +35,7 @@ public:
     row_t get_dual_variables();
 
     void print_inv_table();
+    void debug(int iteration, const row_t &column);
 };
 
 

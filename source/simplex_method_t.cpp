@@ -21,7 +21,7 @@ simplex_method_t::simplex_method_t(abstract_simplex_task_t *task) {
         for (int j = 0; j < task->basis_size(); j++)
             m_extra_inv_table[i].push_back(i == j);
         m_extra_inv_table[i].push_back(0);
-        m_basis.push_back(task->variable_size() - task->basis_size() + i);
+        m_basis.push_back(task->basis_size() + i);
     }
 }
 
@@ -43,7 +43,7 @@ real_t simplex_method_t::find_estimate(int index) {
 }
 
 int simplex_method_t::find_best_column() {
-    real_t minimal_value = 1.0;
+    real_t minimal_value = 123.0;
     int minimal_index = -1;
     for (int i = 0; i < m_task->original_variable_size(); i++) {
         real_t value = find_estimate(i);
@@ -116,14 +116,16 @@ bool simplex_method_t::is_solution_not_bounded() {
 }
 
 bool simplex_method_t::get_solution(row_t &x, std::vector<int> &basis, real_t &value) {
+    int iteration = 0;
     while (!is_solution_optimal()) {
         if (is_solution_not_bounded())
             return false;
 
         auto j = find_best_column();
         auto i = find_worth_row(j);
+        //у auto column = m_task->get_column(j, get_dual_variables());
+        //debug(iteration++, column);
         exchange_variables(j, i);
-        print_inv_table();
     }
 
     if (is_solution_not_bounded())
@@ -155,4 +157,18 @@ row_t simplex_method_t::get_dual_variables() {
     for (int i = 0; i < m_task->variable_size(); i++)
         dual[i] = find_dual_variable(i);
     return dual;
+}
+
+void simplex_method_t::debug(int iteration, const row_t &column) {
+    std::cout.setf(std::ios::fixed | std::ios::showpoint);
+    std::cout.precision(2);
+    std::cout << "iteration " << iteration << std::endl;
+    for (int i = 0; i < m_basis.size(); i++) {
+        std::cout << std::setw(6) << m_basis[i] << " "
+                  << std::setw(6) << m_extra_inv_table[i][0] << " "
+                  << std::setw(6) << find_dual_variable(i) << " "
+                  << std::setw(6) << column[i] << " "
+                  << std::setw(6) << m_extra_inv_table[i][m_task->basis_size() + 1]
+                  << std::endl;
+    }
 }

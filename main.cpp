@@ -20,8 +20,10 @@ int main() {
     patterns.push_back({27, 50, 65});
 
     auto task = new linear_cut_task_t(packages, patterns);
-    auto simplex_method = new simplex_method_t(task);
+    //auto task = linear_cut_task_t::make_standart_simplex_task(packages, patterns);
 
+    auto simplex_method = new simplex_method_t(task);
+/*
     double t[128][128];
     for (int i = 0; i < task->variable_size(); i++) {
         row_t costs(task->get_patterns().size(), -1);
@@ -37,7 +39,7 @@ int main() {
         std::cout << std::setw(4) << task->get_equality(i);
         std::cout << std::endl;
     }
-
+*/
     task->print_cost();
     task->print_equality();
 

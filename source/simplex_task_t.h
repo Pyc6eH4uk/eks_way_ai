@@ -50,7 +50,7 @@ struct simplex_task_t : public abstract_simplex_task_t {
         return (int) equalities.size();
     }
 
-    row_t get_column(int index) const override {
+    row_t get_column(int index, const row_t &costs) const override {
         row_t column;
         for (auto &equalitie : equalities) {
             column.push_back(equalitie.coefficients[index]);

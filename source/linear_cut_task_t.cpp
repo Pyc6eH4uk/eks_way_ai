@@ -10,7 +10,7 @@ linear_cut_task_t::linear_cut_task_t(const std::vector<linear_cut_task_t::packag
     this->patterns = patterns;
 }
 
-std::vector<int> linear_cut_task_t::find_linear_cut(int index, const row_t &v) {
+std::vector<int> linear_cut_task_t::find_linear_cut(int index, const row_t &v) const {
     auto length = packages[index].length;
     std::vector<int> ans(length + 1);
     row_t target(length + 1);
@@ -37,28 +37,50 @@ std::vector<int> linear_cut_task_t::find_linear_cut(int index, const row_t &v) {
 }
 
 double linear_cut_task_t::get_cost(int index) const {
-    return - 1;
+    if (index < packages.size() + patterns.size())
+        return -1;
+    return 0;
 }
 
 double linear_cut_task_t::get_equality(int index) const {
-    return patterns[index].low_size;
+    if (index < patterns.size())
+        return patterns[index].high_size;
+    if (index < patterns.size() + packages.size())
+        return packages[index - patterns.size()].high_size;
+    index -= patterns.size();
+    index -= packages.size();
+    return patterns[index].high_size - patterns[index].low_size;
 }
 
-row_t linear_cut_task_t::get_column(int index) const {
-    row_t column;
+row_t linear_cut_task_t::get_column(int index, const row_t &costs) const {
+    row_t column(basis_size(), 0);
+    if (index < packages.size()) {
+        auto cut = find_linear_cut(index, costs);
+        for (int i = 0; i < get_patterns().size(); i++) {
+            column[i] = cut[i];
+        }
+        column[patterns.size() + index] = 1;
+    } else if (index < packages.size() + patterns.size()) {
+        auto j = index - packages.size();
+        column[j] = 1;
+        column[packages.size() + patterns.size() + j] = 1;
+    } else {
+        auto j = index - packages.size();
+        column[j] = 1;
+    }
     return column;
 }
 
 int linear_cut_task_t::variable_size() const {
-    return (int) patterns.size();
+    return original_variable_size();
 }
 
 int linear_cut_task_t::original_variable_size() const {
-    return (int) patterns.size();
+    return (int) (2 * patterns.size() + 2 * packages.size());
 }
 
 int linear_cut_task_t::basis_size() const {
-    return (int) patterns.size();
+    return (int) (2 * patterns.size() + packages.size());
 }
 
 std::vector<std::vector<int>>

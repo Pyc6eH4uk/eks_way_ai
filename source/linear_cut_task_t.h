@@ -27,17 +27,16 @@ public:
     linear_cut_task_t(const std::vector<package_t> &packages,
                       const std::vector<package_t> &patterns);
 
-    std::vector<int> find_linear_cut(int index, const row_t &v);
+    std::vector<int> find_linear_cut(int index, const row_t &v) const;
 
     double get_cost(int index) const override;
     double get_equality(int index) const override;
-    row_t get_column(int index) const override;
+    row_t get_column(int index, const row_t &costs) const;
     int variable_size() const override;
     int original_variable_size() const override;
     int basis_size() const override;
 
     void print_cost() const override;
-
     void print_equality() const override;
 
     const std::vector<package_t> &get_packages() const;
@@ -45,7 +44,7 @@ public:
 
     static std::vector<std::vector<int>> get_all_cuts(int length, const std::vector<package_t> &patterns);
     static simplex_task_t *make_standart_simplex_task(const std::vector<package_t> &packages,
-                                                                               const std::vector<package_t> &patterns);
+                                                      const std::vector<package_t> &patterns);
 };
 
 class linear_cut_generator_t {

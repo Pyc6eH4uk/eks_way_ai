@@ -17,4 +17,4 @@ add_executable(eks_way_ai
         source/simplex_method_unequality_t.h
         source/simplex_task_t.cpp
         source/simplex_task_t.h
-        main.cpp)
+        main.cpp source/abstract_debuger_t.cpp source/abstract_debuger_t.h source/linear_cut_debuger_t.cpp source/linear_cut_debuger_t.h)

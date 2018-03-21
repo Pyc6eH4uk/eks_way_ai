@@ -16,6 +16,7 @@
 simplex_method_t::simplex_method_t(abstract_simplex_task_t *task) {
     m_task = task;
     m_extra_inv_table.resize(task->basis_size());
+    m_columns.resize(task->basis_size());
     for (int i = 0; i < task->basis_size(); i++) {
         m_extra_inv_table[i].push_back(task->get_equality(i));
         for (int j = 0; j < task->basis_size(); j++)
@@ -83,6 +84,7 @@ int simplex_method_t::find_worth_row(int best_column) {
 
 void simplex_method_t::exchange_variables(int new_index, int row_index) {
     row_t column = get_multiplied_column(new_index);
+    m_columns[row_index] = m_task->get_column(new_index, get_dual_variables());
     for (int i = 0; i < m_task->basis_size(); i++)
         m_extra_inv_table[i][m_task->basis_size() + 1] = column[i];
     auto m = m_task->basis_size();
@@ -115,41 +117,23 @@ bool simplex_method_t::is_solution_not_bounded() {
     return find_worth_row(index) == -1;
 }
 
-bool simplex_method_t::get_solution(row_t &x, std::vector<int> &basis, real_t &value) {
+bool simplex_method_t::solve(abstract_debuger_t *debuger) {
     int iteration = 0;
+
     while (!is_solution_optimal()) {
         if (is_solution_not_bounded())
             return false;
 
         auto j = find_best_column();
         auto i = find_worth_row(j);
-        //у auto column = m_task->get_column(j, get_dual_variables());
-        //debug(iteration++, column);
         exchange_variables(j, i);
+
+        if (debuger != nullptr)
+            debuger->debug(iteration, this);
+        iteration += 1;
     }
 
-    if (is_solution_not_bounded())
-        return false;
-
-    x.clear();
-    x.resize(m_task->variable_size(), 0);
-    basis.clear();
-    value = 0.0;
-    for (int i = 0; i < m_basis.size(); i++) {
-        x[m_basis[i]] = m_extra_inv_table[i][0];
-        basis.push_back(m_basis[i]);
-        value += x[m_basis[i]] * m_task->get_cost(m_basis[i]);
-    }
-    return true;
-}
-
-void simplex_method_t::print_inv_table() {
-    for (int i = 0; i < m_extra_inv_table.size(); i++) {
-        for (int j = 0; j < m_extra_inv_table[i].size(); j++) {
-            std::cout << m_extra_inv_table[i][j] << " ";
-        }
-        std::cout << std::endl;
-    }
+    return !is_solution_not_bounded();
 }
 
 row_t simplex_method_t::get_dual_variables() {
@@ -159,16 +143,19 @@ row_t simplex_method_t::get_dual_variables() {
     return dual;
 }
 
-void simplex_method_t::debug(int iteration, const row_t &column) {
-    std::cout.setf(std::ios::fixed | std::ios::showpoint);
-    std::cout.precision(2);
-    std::cout << "iteration " << iteration << std::endl;
-    for (int i = 0; i < m_basis.size(); i++) {
-        std::cout << std::setw(6) << m_basis[i] << " "
-                  << std::setw(6) << m_extra_inv_table[i][0] << " "
-                  << std::setw(6) << find_dual_variable(i) << " "
-                  << std::setw(6) << column[i] << " "
-                  << std::setw(6) << m_extra_inv_table[i][m_task->basis_size() + 1]
-                  << std::endl;
-    }
+real_t simplex_method_t::get_x(int index) {
+    return m_extra_inv_table[index][0];
+}
+
+
+row_t simplex_method_t::get_column(int index) {
+    return m_columns[index];
+}
+
+int simplex_method_t::get_basis(int index) {
+    return m_basis[index];
+}
+
+abstract_simplex_task_t *simplex_method_t::get_task() {
+    return m_task;
 }

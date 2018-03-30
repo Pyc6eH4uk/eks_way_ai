@@ -14,9 +14,9 @@
 window_cut::window_cut() : QMainWindow() {
     setWindowTitle("Cutting helper");
 
-    _file_menu = new QMenu("File");
-    _open_action = new QAction("Open");
-    _close_action = new QAction("Close");
+    _file_menu = new QMenu(tr("Файл"));
+    _open_action = new QAction(tr("Открыть"));
+    _close_action = new QAction(tr("Закрыть"));
     _file_menu->addAction(_open_action);
     _file_menu->addAction(_close_action);
     _value_label = new QLabel(tr("Объём кроя: 0"));

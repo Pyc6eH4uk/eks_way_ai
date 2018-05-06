@@ -3,17 +3,20 @@
 //
 
 #include "window_cut.h"
+#include "table_widget.h"
 #include <QMenuBar>
 #include <QDebug>
-#include <QLabel>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
 #include <source/linear_cut_task_t.h>
 #include <source/linear_cut_debuger_t.h>
+#include <QPainter>
 
-window_cut::window_cut() : QMainWindow() {
+window_cut::window_cut(QWidget *parent) : QMainWindow(parent) {
     setWindowTitle("Cutting helper");
 
+    _tableWidget = new table_widget(this);
+//    _tableWidget = new table_widget(this);
     _file_menu = new QMenu(tr("Файл"));
     _open_action = new QAction(tr("Открыть"));
     _close_action = new QAction(tr("Закрыть"));
@@ -32,6 +35,7 @@ window_cut::window_cut() : QMainWindow() {
     _cutting_table->setColumnCount(2);
 
     auto page2 = new QWidget();
+
     _tab_widget->addTab(_cutting_table, tr("Раскрой"));
     _tab_widget->addTab(page2, tr("Рисунок"));
 
@@ -58,10 +62,12 @@ window_cut::window_cut() : QMainWindow() {
     _patterns_table->setHorizontalHeaderLabels(column_patterns_names);
 
 //    _patterns_table->setMaximumHeight(300);
-    _vertical_layout_left_table->addWidget(package_label);
-    _vertical_layout_left_table->addWidget(_packages_table);
-    _vertical_layout_right_table->addWidget(pattern_label);
-    _vertical_layout_right_table->addWidget(_patterns_table);
+//    _vertical_layout_left_table->addWidget(package_label);
+//    _vertical_layout_left_table->addWidget(_packages_table);
+//    _vertical_layout_right_table->addWidget(pattern_label);
+//    _vertical_layout_right_table->addWidget(_patterns_table);
+
+    _vertical_layout_right_table->addWidget(_tableWidget);
 
     _horizontal_layout->addLayout(_vertical_layout_left_table);
     _horizontal_layout->addLayout(_vertical_layout_right_table);
@@ -78,6 +84,10 @@ window_cut::window_cut() : QMainWindow() {
 
 window_cut::~window_cut() {
 
+}
+
+QVBoxLayout *window_cut::get_vertical_layout_left_table() const {
+    return _vertical_layout_left_table;
 }
 
 void window_cut::open() {

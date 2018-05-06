@@ -4,8 +4,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMainWindow>
 #include <source/intefrace/window_cut.h>
-#include "source/simplex_task_t.h"
-#include "source/linear_cut_task_t.h"
+#include <QPainter>
 #include "source/linear_cut_debuger_t.h"
 
 int main(int argc, char** args) {
@@ -14,7 +13,21 @@ int main(int argc, char** args) {
     QApplication::setApplicationName("Cutting Helper");
 
     auto window = new window_cut();
+//    window->setCentralWidget(&tableWidget);
+//    auto kek = &tableWidget;
+//    window->get_vertical_layout_left_table()->addWidget(&tableWidget);
     window->show();
+
+//    tableWidget.show();
+//
+//    QApplication application(argc, args);
+//    table_widget w;
+//    w.show();
+//
+//    QPainter painter(&w);
+//    painter.setPen(QPen(Qt::black, 12, Qt::DashDotLine, Qt::RoundCap));
+//    painter.drawLine(0, 0, 200, 200);
+
 //
 //    std::vector<linear_cut_task_t::package_t> packages;
 //    std::vector<linear_cut_task_t::package_t> patterns;

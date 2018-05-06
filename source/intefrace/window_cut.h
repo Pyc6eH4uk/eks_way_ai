@@ -10,6 +10,9 @@
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QLabel>
+//#include "table_widget.h"
+
+class table_widget;
 
 class window_cut : public QMainWindow {
     Q_OBJECT
@@ -29,10 +32,15 @@ protected:
     QLabel *_value_label;
 
 public:
-    window_cut();
+    window_cut(QWidget *parent = 0);
     virtual ~window_cut();
 
     void clear();
+
+    QVBoxLayout *get_vertical_layout_left_table() const;
+
+private:
+    table_widget *_tableWidget;
 private slots:
     void open();
     void close();

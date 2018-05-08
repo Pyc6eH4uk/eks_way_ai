@@ -192,6 +192,8 @@ void window_cut::onChange(int row, int column) {
     for (int i = 0; i < task->basis_size(); i++) {
         auto column = simplex_method->get_column(i);
         auto x = simplex_method->get_x(i);
+        if (int(x) == 0)
+            continue;
         if (simplex_method->get_basis(i) >= task->get_packages().size())
             continue;
         if (column.empty())
@@ -210,6 +212,11 @@ void window_cut::onChange(int row, int column) {
             }
         }
         int pos_x = 0;
+        QGraphicsTextItem *textItem = new QGraphicsTextItem(tr("Бревно типа ") + QString::number(package_id + 1) +
+                                                            tr(" кроится ") + QString::number((int)x) + tr(" раз"));
+        textItem->setFont(QFont("arial", 3));
+        textItem->setPos(QPointF(-80, (useful_packages - 0.5f) * (min_width + min_width / 5)));
+        _scene->addItem(textItem);
         for (int j = 0; j < patterns_to_draw.size(); j++) {
             for (int k = 0; k < patterns_to_draw[j].low_size; k++) {
                 QGraphicsItem *pattern_item = new PatternItem(pos_x, useful_packages * (min_width + min_width / 5), patterns_to_draw[j].length, min_width);

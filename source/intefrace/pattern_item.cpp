@@ -34,17 +34,30 @@ void PatternItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 {
     Q_UNUSED(widget);
 
-    painter->setBrush(QColor(101, 67, 33, 255));
-    painter->setPen(Qt::NoPen);
-    painter->drawRect(QRect(h/2, 0, w-h, h));
+    QLinearGradient gradient;
+    gradient.setStart(0, 0);
+    gradient.setFinalStop(0, h);
+    gradient.setColorAt(0, QColor(61, 37, 15, 255));
+    gradient.setColorAt(1, QColor(101, 67, 33, 255));
 
-    painter->setBrush(QColor(101, 67, 33, 255));
+    //painter->setBrush(QColor(101, 67, 33, 255));
+    painter->setBrush(QBrush(gradient));
     painter->setPen(Qt::NoPen);
-    painter->drawEllipse(QRect(w-h, 0, h, h));
+    painter->drawRect(QRect(h / 2, 0, w - h, h));
+
+    //painter->setBrush(QColor(101, 67, 33, 255));
+    painter->setBrush(QBrush(gradient));
+    painter->setPen(Qt::NoPen);
+    painter->drawEllipse(QRect(w - h, 0, h, h));
 
     painter->setBrush(QColor(181, 120, 60, 255));
     painter->setPen(QPen(Qt::black, 0.3f, Qt::SolidLine, Qt::FlatCap));
     painter->drawEllipse(QRect(0, 0, h, h));
+
+    painter->setBrush(QColor(0, 0, 255, 255));
+    painter->setFont(QFont("arial", 2));
+    QString txt = QString::number(w);
+    painter->drawText(QPointF(h / 2 - h / 4 - (txt.size() - 1) * h / 6.0, h / 2 + h / 4), txt);
 }
 
 void PatternItem::mousePressEvent(QGraphicsSceneMouseEvent *event)

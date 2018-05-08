@@ -3,26 +3,27 @@
 //
 
 #include "window_cut.h"
-#include "table_widget.h"
+#include "pattern_item.h"
 #include <QMenuBar>
 #include <QDebug>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
 #include <source/linear_cut_task_t.h>
 #include <source/linear_cut_debuger_t.h>
-#include <QPainter>
+
 
 window_cut::window_cut(QWidget *parent) : QMainWindow(parent) {
     setWindowTitle("Cutting helper");
 
-    _tableWidget = new table_widget(this);
-//    _tableWidget = new table_widget(this);
     _file_menu = new QMenu(tr("Файл"));
     _open_action = new QAction(tr("Открыть"));
     _close_action = new QAction(tr("Закрыть"));
     _file_menu->addAction(_open_action);
     _file_menu->addAction(_close_action);
     _value_label = new QLabel(tr("Объём кроя: 0"));
+    _pattern_view = new View("Patterns");
+    _scene = new QGraphicsScene(this);
+    _pattern_view->view()->setScene(_scene);
 
     connect(_open_action, SIGNAL(triggered()), this, SLOT(open()));
     connect(_close_action, SIGNAL(triggered()), this, SLOT(close()));
@@ -37,7 +38,7 @@ window_cut::window_cut(QWidget *parent) : QMainWindow(parent) {
     auto page2 = new QWidget();
 
     _tab_widget->addTab(_cutting_table, tr("Раскрой"));
-    _tab_widget->addTab(page2, tr("Рисунок"));
+    _tab_widget->addTab(_pattern_view, tr("Рисунок"));
 
     _vertical_layout_left_table = new QVBoxLayout();
 
@@ -62,12 +63,11 @@ window_cut::window_cut(QWidget *parent) : QMainWindow(parent) {
     _patterns_table->setHorizontalHeaderLabels(column_patterns_names);
 
 //    _patterns_table->setMaximumHeight(300);
-//    _vertical_layout_left_table->addWidget(package_label);
-//    _vertical_layout_left_table->addWidget(_packages_table);
-//    _vertical_layout_right_table->addWidget(pattern_label);
-//    _vertical_layout_right_table->addWidget(_patterns_table);
+    _vertical_layout_left_table->addWidget(package_label);
+    _vertical_layout_left_table->addWidget(_packages_table);
+    _vertical_layout_right_table->addWidget(pattern_label);
+    _vertical_layout_right_table->addWidget(_patterns_table);
 
-    _vertical_layout_right_table->addWidget(_tableWidget);
 
     _horizontal_layout->addLayout(_vertical_layout_left_table);
     _horizontal_layout->addLayout(_vertical_layout_right_table);
@@ -86,9 +86,6 @@ window_cut::~window_cut() {
 
 }
 
-QVBoxLayout *window_cut::get_vertical_layout_left_table() const {
-    return _vertical_layout_left_table;
-}
 
 void window_cut::open() {
     QString fileName = QFileDialog::getOpenFileName(this,
@@ -184,6 +181,13 @@ void window_cut::onChange(int row, int column) {
 
     _cutting_table->clear();
     _cutting_table->setRowCount(0);
+    _scene->clear();
+
+    int useful_packages = 0;
+    int min_width = INT_MAX;
+    for (int i = 0; i < task->get_patterns().size(); i++) {
+        min_width = std::min(min_width, task->get_patterns()[i].length);
+    }
 
     for (int i = 0; i < task->basis_size(); i++) {
         auto column = simplex_method->get_column(i);
@@ -192,13 +196,30 @@ void window_cut::onChange(int row, int column) {
             continue;
         if (column.empty())
             continue;
+        std::vector<linear_cut_task_t::package_t> patterns_to_draw;
         auto package_id = simplex_method->get_basis(i);
         _cutting_table->insertRow(_cutting_table->rowCount());
         _cutting_table->setItem(_cutting_table->rowCount() - 1, 0, new QTableWidgetItem(QString::number(package_id + 1)));
         _cutting_table->setItem(_cutting_table->rowCount() - 1, 1, new QTableWidgetItem(QString::number((int) x)));
         for (int j = 0; j < task->get_patterns().size(); j++) {
             _cutting_table->setItem(_cutting_table->rowCount() - 1, j + 2, new QTableWidgetItem(QString::number((int) column[j])));
+            int count = (int) column[j];
+            if (count > 0) {
+                patterns_to_draw.push_back(task->get_patterns()[j]);
+                patterns_to_draw.back().low_size = count;
+            }
         }
+        int pos_x = 0;
+        for (int j = 0; j < patterns_to_draw.size(); j++) {
+            for (int k = 0; k < patterns_to_draw[j].low_size; k++) {
+                QGraphicsItem *pattern_item = new PatternItem(pos_x, useful_packages * (min_width + min_width / 5), patterns_to_draw[j].length, min_width);
+                pattern_item->setPos(QPointF(pos_x, useful_packages * (min_width + min_width / 5)));
+                pattern_item->setZValue(0);
+                _scene->addItem(pattern_item);
+                pos_x += patterns_to_draw[j].length;
+            }
+        }
+        useful_packages += 1;
     }
 }
 

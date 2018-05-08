@@ -13,9 +13,6 @@ int main(int argc, char** args) {
     QApplication::setApplicationName("Cutting Helper");
 
     auto window = new window_cut();
-//    window->setCentralWidget(&tableWidget);
-//    auto kek = &tableWidget;
-//    window->get_vertical_layout_left_table()->addWidget(&tableWidget);
     window->show();
 
 //    tableWidget.show();

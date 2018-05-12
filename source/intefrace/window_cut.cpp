@@ -10,6 +10,7 @@
 #include <QtWidgets/QMessageBox>
 #include <source/linear_cut_task_t.h>
 #include <source/linear_cut_debuger_t.h>
+#include <QtWidgets/QHeaderView>
 
 
 window_cut::window_cut(QWidget *parent) : QMainWindow(parent) {
@@ -24,7 +25,6 @@ window_cut::window_cut(QWidget *parent) : QMainWindow(parent) {
     _pattern_view = new View("Patterns");
     _scene = new QGraphicsScene(this);
     _pattern_view->view()->setScene(_scene);
-
     connect(_open_action, SIGNAL(triggered()), this, SLOT(open()));
     connect(_close_action, SIGNAL(triggered()), this, SLOT(close()));
 
@@ -33,7 +33,8 @@ window_cut::window_cut(QWidget *parent) : QMainWindow(parent) {
     _tab_widget = new QTabWidget();
 
     _cutting_table = new QTableWidget();
-    _cutting_table->setColumnCount(2);
+//    _cutting_table->setColumnCount(2);
+
 
     auto page2 = new QWidget();
 
@@ -42,7 +43,7 @@ window_cut::window_cut(QWidget *parent) : QMainWindow(parent) {
 
     _vertical_layout_left_table = new QVBoxLayout();
 
-    auto package_label = new QLabel(tr("Брёвна"));
+    auto package_label = new QLabel(tr("Брус"));
     auto pattern_label = new QLabel(tr("Заготовки"));
 
     auto column_packages_names = QStringList();
@@ -92,7 +93,6 @@ void window_cut::open() {
                                                     tr("Open input data"), "",
                                                     tr("Input data (*.txt)"));
 
-    qDebug() << fileName;
     disconnect(_packages_table, SIGNAL(cellChanged(int, int)), 0, 0);
     disconnect(_patterns_table, SIGNAL(cellChanged(int, int)), 0, 0);
 
@@ -158,7 +158,7 @@ void window_cut::onChange(int row, int column) {
     }
 
     for (int i = 0; i < _patterns_table->rowCount(); i++) {
-        qDebug() << _patterns_table->item(i, 0)->text() << _patterns_table->item(i, 1)->text() << _patterns_table->item(i, 2)->text();
+//        qDebug() << _patterns_table->item(i, 0)->text() << _patterns_table->item(i, 1)->text() << _patterns_table->item(i, 2)->text();
         auto length = _patterns_table->item(i, 0)->text().toInt();
         auto min = _patterns_table->item(i, 1)->text().toInt();
         auto max = _patterns_table->item(i, 2)->text().toInt();
@@ -183,11 +183,23 @@ void window_cut::onChange(int row, int column) {
     _cutting_table->setRowCount(0);
     _scene->clear();
 
+    QStringList list;
+    list.push_back(tr("Тип бруса"));
+    list.push_back(tr("Кратность кроя"));
+    for (int i = 0; i < task->get_patterns().size(); i++) {
+        list.push_back(QString::number(i + 1));
+    }
+    _cutting_table->setHorizontalHeaderLabels(list);
+    _cutting_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    _cutting_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+
     int useful_packages = 0;
+
     int min_width = INT_MAX;
     for (int i = 0; i < task->get_patterns().size(); i++) {
         min_width = std::min(min_width, task->get_patterns()[i].length);
     }
+
 
     for (int i = 0; i < task->basis_size(); i++) {
         auto column = simplex_method->get_column(i);
@@ -211,6 +223,7 @@ void window_cut::onChange(int row, int column) {
                 patterns_to_draw.back().low_size = count;
             }
         }
+
         int pos_x = 0;
         QGraphicsTextItem *textItem = new QGraphicsTextItem(tr("Бревно типа ") + QString::number(package_id + 1) +
                                                             tr(" кроится ") + QString::number((int)x) + tr(" раз"));
@@ -230,12 +243,21 @@ void window_cut::onChange(int row, int column) {
     }
 }
 
+
 void window_cut::clear() {
+    auto column_packages_names = QStringList();
+    column_packages_names << tr("Длина") << tr("Количество");
+
     _packages_table->clear();
     _packages_table->setRowCount(0);
+    _packages_table->setHorizontalHeaderLabels(column_packages_names);
+
+    auto column_patterns_names = QStringList();
+    column_patterns_names << tr("Длина") << tr("Минимум") << tr("Максимум");
 
     _patterns_table->clear();
     _patterns_table->setRowCount(0);
+    _patterns_table->setHorizontalHeaderLabels(column_patterns_names);
 }
 
 void window_cut::close() {

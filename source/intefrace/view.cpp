@@ -112,7 +112,7 @@ View::View(const QString &name, QWidget *parent)
     zoomSlider = new QSlider;
     zoomSlider->setMinimum(0);
     zoomSlider->setMaximum(500);
-    zoomSlider->setValue(250);
+    zoomSlider->setValue(350);
     zoomSlider->setTickPosition(QSlider::TicksRight);
 
     // Zoom slider layout
@@ -221,7 +221,7 @@ QGraphicsView *View::view() const
 
 void View::resetView()
 {
-    zoomSlider->setValue(250);
+    zoomSlider->setValue(350);
     rotateSlider->setValue(0);
     setupMatrix();
     graphicsView->ensureVisible(QRectF(0, 0, 0, 0));

@@ -51,7 +51,7 @@ void PatternItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     painter->drawEllipse(QRect(w - h, 0, h, h));
 
     painter->setBrush(QColor(181, 120, 60, 255));
-    painter->setPen(QPen(Qt::black, 0.3f, Qt::SolidLine, Qt::FlatCap));
+    painter->setPen(QPen(Qt::black, 0.01f, Qt::SolidLine, Qt::FlatCap));
     painter->drawEllipse(QRect(0, 0, h, h));
 
     painter->setBrush(QColor(0, 0, 255, 255));
